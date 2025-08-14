@@ -12,5 +12,5 @@ RUN pip install --no-cache-dir --root-user-action ignore -r requirements.txt
 # Export openphone_exports as a volume
 VOLUME openphone_exports
 
-# Run the application
-cmd python mondaywrite.py
+# Run the applications
+cmd python openphone.py && python mondaywrite.py
