@@ -1,0 +1,8 @@
+2025-08-06 13:03:16,675 - INFO - Monday.com Sync Scheduler Started
+2025-08-06 13:03:16,675 - INFO - Press Ctrl+C to stop
+2025-08-06 13:03:16,675 - INFO - System health check passed
+2025-08-06 13:03:16,676 - INFO - Scheduled times:
+2025-08-06 13:03:16,676 - INFO - - Daily at 9:00 AM
+2025-08-06 13:03:16,676 - INFO - - Daily at 5:00 PM
+2025-08-06 13:03:16,676 - INFO - - Every Monday at 8:00 AM
+2025-08-06 13:03:55,291 - INFO - Scheduler stopped by user
