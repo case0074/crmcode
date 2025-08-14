@@ -3,6 +3,7 @@
 .vscode/
 __pycache__/
 credentials.json
-token.json
+logs/
 formatted_contacts.csv
 openphone_exports/
+token.json
