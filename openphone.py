@@ -300,7 +300,7 @@ def format_contacts():
 def main():
     # 1. Request export from OpenPhone    format_contacts()
    # request_openphone_export()
-    #check_for_export_email()
+    check_for_export_email()
     check_for_message_export_email()
 if __name__ == "__main__":
     main()
