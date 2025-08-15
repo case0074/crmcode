@@ -17,6 +17,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from pathlib import Path
+import dotenv
+dotenv.load_dotenv()
 # Configuration
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 sender_email = "op@openphone.com"
@@ -102,7 +104,7 @@ def request_openphone_export():
     try:
         # 1. LOGIN TO OPENPHONE
         driver.get("https://my.openphone.com/login")
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 50)
         
         button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[.//span[text()='Email & password']]")))
         button.click()
@@ -114,7 +116,6 @@ def request_openphone_export():
         wait.until(EC.element_to_be_clickable((By.NAME, "action"))).click()
         
         # 2. REQUEST DATA EXPORT
-        wait = WebDriverWait(driver, 30)
         settings_link = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="/settings"]')))
         driver.execute_script("arguments[0].scrollIntoView(true);", settings_link)
         settings_link.click()
@@ -299,7 +300,7 @@ def format_contacts():
 
 def main():
     # 1. Request export from OpenPhone    format_contacts()
-   # request_openphone_export()
+    request_openphone_export()
     check_for_export_email()
     check_for_message_export_email()
 if __name__ == "__main__":
