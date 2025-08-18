@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Any
 import dotenv
 import requests
+import time
 from openphone import (
     check_for_export_email, 
     download_and_extract_export, 
@@ -58,9 +59,20 @@ class MondayAPI:
         
         print("Sending GraphQL Request with Payload:")
         print(json.dumps(payload, indent=2))
-        
-        response = requests.post(self.api_url, headers=self.headers, json=payload)
-        return response.json()
+        max_attempts = 3
+        last_exception: Optional[Exception] = None
+        for attempt in range(max_attempts):
+            try:
+                response = requests.post(self.api_url, headers=self.headers, json=payload, timeout=60)
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.RequestException as e:
+                last_exception = e
+                print(f"Request attempt {attempt + 1}/{max_attempts} failed: {e}")
+                if attempt < max_attempts - 1:
+                    time.sleep(2 ** attempt)
+                    continue
+                return {"errors": [{"message": str(e)}]}
     
     def get_board_columns(self, board_id: int) -> List[Dict[str, str]]:
         #Get column information for a board
@@ -133,13 +145,13 @@ class MondayAPI:
         date_created_str = date_created.strftime('%Y-%m-%d')
         last_activity_str = last_activity.strftime('%Y-%m-%d')
 
-        query = '''
-        mutation ($itemId: ID!, $columnVals: JSON!) {
-          change_multiple_column_values(item_id: $itemId, board_id: %d, column_values: $columnVals) {
+        query = f'''
+        mutation ($itemId: ID!, $columnVals: JSON!) {{
+          change_multiple_column_values(item_id: $itemId, board_id: {board_id}, column_values: $columnVals) {{
             id
-          }
-        }
-        ''' % board_id
+          }}
+        }}
+        '''
         
         column_values = {
             Config.COLUMN_IDS['date_created']: {"date": date_created_str},
@@ -160,13 +172,13 @@ class MondayAPI:
         #Update only the last activity date for existing contacts.
         last_activity_str = last_activity.strftime('%Y-%m-%d')
 
-        query = '''
-        mutation ($itemId: ID!, $columnVals: JSON!) {
-          change_multiple_column_values(item_id: $itemId, board_id: %d, column_values: $columnVals) {
+        query = f'''
+        mutation ($itemId: ID!, $columnVals: JSON!) {{
+          change_multiple_column_values(item_id: $itemId, board_id: {board_id}, column_values: $columnVals) {{
             id
-          }
-        }
-        ''' % board_id
+          }}
+        }}
+        '''
         
         column_values = {
             Config.COLUMN_IDS['last_activity']: {"date": last_activity_str}
