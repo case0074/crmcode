@@ -12,6 +12,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+import tempfile
+import shutil
+from uuid import uuid4
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -100,7 +104,21 @@ def download_and_extract_export(url, output_dir='openphone_exports'):
         return None
 
 def request_openphone_export():
-    driver = webdriver.Chrome()
+    base_profiles = Path(__file__).parent / ".selenium_profiles"
+    base_profiles.mkdir(exist_ok=True)
+    temp_profile_dir = base_profiles / f"session_{uuid4().hex}"
+    temp_profile_dir.mkdir(parents=True, exist_ok=True)
+    options = Options()
+    options.add_argument(f"--user-data-dir={str(temp_profile_dir)}")
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-default-browser-check")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--headless=new")
+    options.add_argument("--remote-debugging-port=0")
+    driver = webdriver.Chrome(options=options)
     try:
         # 1. LOGIN TO OPENPHONE
         driver.get("https://my.openphone.com/login")
@@ -147,9 +165,24 @@ def request_openphone_export():
         
     finally:
         driver.quit()
+        shutil.rmtree(str(temp_profile_dir), ignore_errors=True)
 
 def request_openphone_messages_export():
-    driver = webdriver.Chrome()
+    base_profiles = Path(__file__).parent / ".selenium_profiles"
+    base_profiles.mkdir(exist_ok=True)
+    temp_profile_dir = base_profiles / f"session_{uuid4().hex}"
+    temp_profile_dir.mkdir(parents=True, exist_ok=True)
+    options = Options()
+    options.add_argument(f"--user-data-dir={str(temp_profile_dir)}")
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-default-browser-check")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--headless=new")
+    options.add_argument("--remote-debugging-port=0")
+    driver = webdriver.Chrome(options=options)
     try:
         # 1. LOGIN TO OPENPHONE
         driver.get("https://my.openphone.com/login")
@@ -197,6 +230,7 @@ def request_openphone_messages_export():
         
     finally:
         driver.quit()
+        shutil.rmtree(str(temp_profile_dir), ignore_errors=True)
 
 
 def check_for_message_export_email():
@@ -300,8 +334,7 @@ def format_contacts():
 
 def main():
     # 1. Request export from OpenPhone    format_contacts()
-    request_openphone_export()
-    check_for_export_email()
+    request_openphone_messages_export()
     check_for_message_export_email()
 if __name__ == "__main__":
     main()
